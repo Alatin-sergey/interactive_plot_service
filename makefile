@@ -6,7 +6,7 @@ all: up info
 update_env_file:
 	cat ./env.example > ./.env
 
-first_start: up load_model create_airflow_connection info
+first_start: up update_env_file load_model create_airflow_connection info
 
 up:
 	echo "Start of deploying services"
@@ -42,6 +42,7 @@ help:
 	echo "- load_model - скачивание LLM в контейнере ollama"
 	echo "- down - остановка приложений"
 	echo "- create_airflow_connection - подключение Airflow к PostgreSQL. Запускается только при первом запуске"
+	echo "- update_env_file - скопировать example.env в .env
 	echo "- info - информация о доступных портах"
 
 .PHONY: all up load_model down create_airflow_connection first_start info help update_env_file
