@@ -30,9 +30,8 @@ create_airflow_connection: up
 	  --conn-schema $(POSTGRES_DB)
 
 info:
-	echo "Strealit app: http://localhost:8501/"	
-	echo "pgAdmin4: http://localhost:8081/"
-	echo "Airflow UI: http://localhost:8080/"
+	echo "Strealit app: http://localhost:${FRONTEND_PORT}/"	
+	echo "Airflow UI: http://localhost:${AIRFLOW_PORT}/"
 	echo "For help use command: make -f makefile help"
 
 help:

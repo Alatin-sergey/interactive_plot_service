@@ -12,10 +12,19 @@ import psycopg2
 import base64
 from loguru import logger
 
+from plot_utils import (
+    line_plot,
+    bar_plot,
+    hist_plot,
+    box_plot,
+)
+
 load_dotenv()
+with open("prompt_for_extract_features.txt", "r", encoding="utf-8") as f:
+    template = f.read()
 
 
-def extract_plot_features_api(prompt: str) -> Dict[str, Any]:
+def extract_plot_features_api(prompt: str, template: str=template) -> Dict[str, Any]:
     """
     Выполняет запрос к сервису LLM по API.
     args:
@@ -27,80 +36,16 @@ def extract_plot_features_api(prompt: str) -> Dict[str, Any]:
         generated_text - сгенерированный json в формате dict
     """
     logger.info("Отправка запроса в LLM")
-    llm_url = f"http://{os.getenv("LLM_HOST")}:{os.getenv("LLM_PORT")}"
+    llm_url = f"http://{os.getenv('LLM_SERVICE')}:{os.getenv('LLM_PORT')}"
+    
     try:
-        template = """
-        Твоя задача - извлечь ключевые элементы из запроса пользователя для построения графика.
-        Определи следующие элементы запроса и верни их в формате JSON:
-        1.  Тип графика (plot_type):
-            *   line - для отображения динамики изменений во времени.
-            *   bar - для сравнения категорий или отображения количества.
-            *   scatter - для отображения взаимосвязи между двумя переменными.
-            *   hist - для отображения распределения одной переменной.
-            *   boxplot - для сравнения распределений нескольких групп.
-            *   pie - для отображения доли каждой категории в общей сумме.
-            *   null - если тип графика не определен.
-        2.  Признак для оси X (x_axis):
-            *   timestamp - для отображения времени.
-            *   customer_id - для отображения идентификатора клиента.
-            *   category - для отображения категории товара.
-            *   purchase_amount - для отображения суммы покупки.
-            *   is_returned - для отображения факта возврата товара.
-            *   null - если признак для оси X не определен или не требуется.
-        3.  Признак для оси Y (y_axis):
-            *   timestamp - для отображения времени.
-            *   customer_id - для отображения идентификатора клиента.
-            *   category - для отображения категории товара.
-            *   purchase_amount - для отображения суммы покупки.
-            *   is_returned - для отображения факта возврата товара.
-            *   count - для отображения количества записей.
-            *   null - если признак для оси Y не определен или не требуется.
-        4.  Агрегатная функция (aggregate):
-            *   sum - для вычисления суммы.
-            *   avg - для вычисления среднего значения.
-            *   min - для вычисления минимального значения.
-            *   max - для вычисления максимального значения.
-            *   null - если агрегатная функция не требуется.
-        5.  Фильтры (filters): JSON-объект с фильтрами для данных.
-            *   category: Sport, Electronic, Home или null.
-            *   is_returned: true, false или null.
-            *   customer_id: целое число или null.
-            *   date_from: дата в формате YYYY-MM-DD или null.
-            *   date_to: дата в формате YYYY-MM-DD или null.
-        Примеры:
-        - Запрос: Показать распределение purchase_amount по category
-          Ответ: {{"plot_type": "boxplot", "x_axis": "category", "y_axis": "purchase_amount", "aggregate": null, "filters": {{}}}}
-        - Запрос: Динамика purchase_amount по времени
-          Ответ: {{"plot_type": "line", "x_axis": "timestamp", "y_axis": "purchase_amount", "aggregate": null, "filters": {{}}}}
-        - Запрос: Соотношение is_returned по category
-          Ответ: {{"plot_type": "bar", "x_axis": "category", "y_axis": "is_returned", "aggregate": "count", "filters": {{}}}}
-        - Запрос: Сколько возвратов было по каждой категории?
-          Ответ: {{"plot_type": "bar", "x_axis": "category", "y_axis": "is_returned", "aggregate": "count", "filters": {{}}}}
-        - Запрос: Распределение доходов
-          Ответ: {{"plot_type": "hist", "x_axis": "purchase_amount", "y_axis": null, "aggregate": null, "filters": {{}}}}
-        - Запрос: Средний чек для покупателя с id 123
-          Ответ: {{"plot_type": "bar", "x_axis": "customer_id", "y_axis": "purchase_amount", "aggregate": "avg", "filters": {{"customer_id": 123}}}}
-        - Запрос: Сумма покупок в категории Sport за последний месяц
-          Ответ: {{"plot_type": "line", "x_axis": "timestamp", "y_axis": "purchase_amount", "aggregate": "sum", "filters": {{"category": "Sport", "date_from": "2024-05-24", "date_to": "2024-06-24"}}}}
-        - Запрос: Сумма возвратов в категории Sport за последний месяц
-          Ответ: {{"plot_type": "line", "x_axis": "timestamp", "y_axis": "is_returned", "aggregate": "sum", "filters": {{"category": "Sport", "is_returned": true, "date_from": "2024-05-24", "date_to": "2024-06-24"}}}}
-        - Запрос: Какова динамика количества уникальных клиентов по времени?
-          Ответ: {{"plot_type": "line", "x_axis": "timestamp", "y_axis": "customer_id", "aggregate": "count", "filters": {{}}}}
-        - Запрос: Сколько дохода мы потеряли из-за возвратов?
-          Ответ: {{"plot_type": "bar", "x_axis": "is_returned", "y_axis": "purchase_amount", "aggregate": "sum", "filters": {{"is_returned": true}}}}
-
-        Дата сейчас: {date}
-        Запрос пользователя: {message}
-
-        Верни только JSON, без дополнительных слов и символов.
-        """
         final_prompt = template.format(message=prompt, date=datetime.datetime.now())
         url = f"{llm_url}/api/generate"
         headers = {"Content-Type": "application/json"}
         data = {
             "prompt": final_prompt,
-            "model": os.getenv("MODEL"),
-            "stream": False
+            "model": os.getenv("MODEL", "mistral"),
+            "stream": False,
         }
         response = requests.post(url, headers=headers, data=json.dumps(data))
         response.raise_for_status()
@@ -137,14 +82,14 @@ def generate_sql(json_data: Dict[str, Any]) -> str:
     order_by_clause = ""
 
     if json_data.get("aggregate") is not None and json_data.get("y_axis") is not None and json_data.get("x_axis") is not None:
-        select_clause += f"{json_data.get("x_axis")} AS {json_data.get("x_axis")}, {json_data.get("aggregate")}({json_data.get("y_axis")}) AS {json_data.get("y_axis")}"
-    elif json_data.get("aggregate") is not None and json_data.get("y_axis") is not None:
-        select_clause += f"{json_data.get("aggregate")}({json_data.get("y_axis")}) AS {json_data.get("y_axis")}"
-    elif json_data.get("x_axis") is not None and json_data.get("y_axis") is not None:
-        select_clause += f"{json_data.get("x_axis")} AS {json_data.get("x_axis")}, ({json_data.get("y_axis")}) AS {json_data.get("y_axis")}"
+        select_clause += f"{json_data.get('x_axis')} AS {json_data.get('x_axis')}, {json_data.get('aggregate')}({json_data.get('y_axis')}) AS {json_data.get('y_axis')}"
+    elif json_data.get('aggregate') is not None and json_data.get('y_axis') is not None:
+        select_clause += f"{json_data.get('aggregate')}({json_data.get('y_axis')}) AS {json_data.get('y_axis')}"
+    elif json_data.get('x_axis') is not None and json_data.get('y_axis') is not None:
+        select_clause += f"{json_data.get('x_axis')} AS {json_data.get('x_axis')}, ({json_data.get('y_axis')}) AS {json_data.get('y_axis')}"
     else:
         if json_data.get("y_axis") is not None:
-            select_clause += f"{json_data.get("y_axis")}"
+            select_clause += f"{json_data.get('y_axis')}"
         else:
             select_clause = json_data.get("x_axis") if json_data.get("x_axis") is not None else "*"
 
@@ -165,8 +110,8 @@ def generate_sql(json_data: Dict[str, Any]) -> str:
         where_clause = "WHERE " + " AND ".join(where_conditions)
     
     if json_data.get("x_axis") and json_data.get("plot_type") != "hist":
-        group_by_clause = f"GROUP BY {json_data.get("x_axis")}"
-        order_by_clause = f"ORDER BY {json_data.get("x_axis")}"
+        group_by_clause = f"GROUP BY {json_data.get('x_axis')}"
+        order_by_clause = f"ORDER BY {json_data.get('x_axis')}"
 
     sql_query = f"""
         SELECT {select_clause}
@@ -194,8 +139,8 @@ def get_data(sql_query: str) -> pd.DataFrame:
     logger.info("Отправка запроса в базу данных")
     try:
         conn = psycopg2.connect(
-            host="postgres", # Внутри контейнера docker-compose host ассоциируется с именем сервиса.
-            port=5432,
+            host=os.getenv("POSTGRES_SERVICE"),
+            port=os.getenv("POSTGRES_PORT"),
             dbname=os.getenv("POSTGRES_DB"),
             user=os.getenv("POSTGRES_USER"),
             password=os.getenv("POSTGRES_PASSWORD"),
@@ -230,50 +175,21 @@ def generate_plot(df: pd.DataFrame, json_data: Dict[str, Any]) -> str:
         str or None: Строка, представляющая PNG изображение графика, закодированное в Base64 (UTF-8).
                     Возвращает None, если не удалось построить график.
     """
+    plot_dict = {
+        "line": line_plot,
+        "bar": bar_plot,
+        "hist": hist_plot,
+        "boxplot": box_plot
+    }
     logger.info(f"Построение графика \n plot_type={json_data.get('plot_type')}, x_axis={json_data.get('x_axis')}, y_axis={json_data.get('y_axis')}")
     try:
         if df.empty:
             return None
-        if json_data.get("plot_type") == "line":
-            plt.figure(figsize=(10, 6))
-            sns.lineplot(x=json_data.get("x_axis"), y=json_data.get("y_axis"), data=df)
-            plt.xlabel(json_data.get("x_axis"))
-            plt.ylabel(json_data.get("y_axis"))
-            plt.title(f"Динамика {json_data.get('y_axis')} по {json_data.get('x_axis')}")
-            plt.grid(True)
-
-        elif json_data.get("plot_type") == "bar":
-            plt.figure(figsize=(10, 6))
-            sns.barplot(x=json_data.get("x_axis"), y=json_data.get("y_axis"), data=df)
-            plt.xlabel(json_data.get("x_axis"))
-            plt.ylabel(json_data.get("y_axis"))
-            plt.title(f"Соотношение {json_data.get('y_axis')} по {json_data.get('x_axis')}")
-            plt.grid(True)
-
-        elif json_data.get("plot_type") == "hist":
-            plt.figure(figsize=(10, 6))
-            if json_data.get("y_axis") is None:
-                sns.histplot(x=json_data.get("x_axis"), data=df, bins=30)
-                plt.title(f"Распределение {json_data.get('x_axis')}")
-            else:
-                for category in df[json_data.get("x_axis")].unique():
-                    subset = df[df[json_data.get("x_axis")] == category]
-                    sns.histplot(x=json_data.get("y_axis"), data=subset, kde=True, label=category, bins=30)
-                    plt.title(f"Распределение {json_data.get('y_axis')} по {json_data.get('x_axis')}")
-                plt.xlabel("Purchase Amount")
-                plt.ylabel("Frequency")
-                plt.grid(True)
-                plt.legend()
-
-        elif json_data.get("plot_type") == "boxplot":
-            plt.figure(figsize=(10, 6))
-            sns.boxplot(x=json_data.get("x_axis"), y=json_data.get("y_axis"), data=df)
-            plt.xlabel(json_data.get("x_axis"))
-            plt.ylabel(json_data.get("y_axis"))
-            plt.title(f"Распределение {json_data.get('y_axis')} по {json_data.get('x_axis')}")
-            plt.grid(True)
-            plt.suptitle("")
-            
+        plot_dict[json_data.get("plot_type")](
+            df,
+            json_data.get("x_axis"),
+            json_data.get("y_axis")
+        )
         buffer = io.BytesIO()
         plt.savefig(buffer, format="png")
         buffer.seek(0)

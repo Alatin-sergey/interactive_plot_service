@@ -1,0 +1,63 @@
+Твоя задача - извлечь ключевые элементы из запроса пользователя для построения графика.
+Определи следующие элементы запроса и верни их в формате JSON:
+1.  Тип графика (plot_type):
+*   line - для отображения динамики изменений во времени.
+*   bar - для сравнения категорий или отображения количества.
+*   scatter - для отображения взаимосвязи между двумя переменными.
+*   hist - для отображения распределения одной переменной.
+*   boxplot - для сравнения распределений нескольких групп.
+*   pie - для отображения доли каждой категории в общей сумме.
+*   null - если тип графика не определен.
+2.  Признак для оси X (x_axis):
+*   timestamp - для отображения времени.
+*   customer_id - для отображения идентификатора клиента.
+*   category - для отображения категории товара.
+*   purchase_amount - для отображения суммы покупки.
+*   is_returned - для отображения факта возврата товара.
+*   null - если признак для оси X не определен или не требуется.
+3.  Признак для оси Y (y_axis):
+*   timestamp - для отображения времени.
+*   customer_id - для отображения идентификатора клиента.
+*   category - для отображения категории товара.
+*   purchase_amount - для отображения суммы покупки.
+*   is_returned - для отображения факта возврата товара.
+*   count - для отображения количества записей.
+*   null - если признак для оси Y не определен или не требуется.
+4.  Агрегатная функция (aggregate):
+*   sum - для вычисления суммы.
+*   avg - для вычисления среднего значения.
+*   min - для вычисления минимального значения.
+*   max - для вычисления максимального значения.
+*   null - если агрегатная функция не требуется.
+5.  Фильтры (filters): JSON-объект с фильтрами для данных.
+*   category: Sport, Electronic, Home или null.
+*   is_returned: true, false или null.
+*   customer_id: целое число или null.
+*   date_from: дата в формате YYYY-MM-DD или null.
+*   date_to: дата в формате YYYY-MM-DD или null.
+Примеры:
+- Запрос: Показать распределение purchase_amount по category
+Ответ: {{"plot_type": "boxplot", "x_axis": "category", "y_axis": "purchase_amount", "aggregate": null, "filters": {{}}}}
+- Запрос: Динамика purchase_amount по времени
+Ответ: {{"plot_type": "line", "x_axis": "timestamp", "y_axis": "purchase_amount", "aggregate": null, "filters": {{}}}}
+- Запрос: Соотношение is_returned по category
+Ответ: {{"plot_type": "bar", "x_axis": "category", "y_axis": "is_returned", "aggregate": "count", "filters": {{}}}}
+- Запрос: Сколько возвратов было по каждой категории?
+Ответ: {{"plot_type": "bar", "x_axis": "category", "y_axis": "is_returned", "aggregate": "count", "filters": {{}}}}
+- Запрос: Распределение доходов
+Ответ: {{"plot_type": "hist", "x_axis": "purchase_amount", "y_axis": null, "aggregate": null, "filters": {{}}}}
+- Запрос: Средний чек для покупателя с id 123
+Ответ: {{"plot_type": "bar", "x_axis": "customer_id", "y_axis": "purchase_amount", "aggregate": "avg", "filters": {{"customer_id": 123}}}}
+- Запрос: Сумма покупок в категории Sport за последний месяц
+Ответ: {{"plot_type": "line", "x_axis": "timestamp", "y_axis": "purchase_amount", "aggregate": "sum", "filters": {{"category": "Sport", "date_from": "2024-05-24", "date_to": "2024-06-24"}}}}
+- Запрос: Сумма возвратов в категории Sport за последний месяц
+Ответ: {{"plot_type": "line", "x_axis": "timestamp", "y_axis": "is_returned", "aggregate": "sum", "filters": {{"category": "Sport", "is_returned": true, "date_from": "2024-05-24", "date_to": "2024-06-24"}}}}
+- Запрос: Какова динамика количества уникальных клиентов по времени?
+Ответ: {{"plot_type": "line", "x_axis": "timestamp", "y_axis": "customer_id", "aggregate": "count", "filters": {{}}}}
+- Запрос: Сколько дохода мы потеряли из-за возвратов?
+Ответ: {{"plot_type": "bar", "x_axis": "is_returned", "y_axis": "purchase_amount", "aggregate": "sum", "filters": {{"is_returned": true}}}}
+
+Дата сейчас: {date}
+Запрос пользователя: {message}
+
+Верни только JSON, без дополнительных слов и символов.

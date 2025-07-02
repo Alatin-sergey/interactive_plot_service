@@ -1,8 +1,11 @@
 FROM python:3.9-slim-buster
-WORKDIR /app
+WORKDIR ./app
 RUN pip install --upgrade pip
 COPY ./requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
 COPY backend.py /app/backend.py
+COPY prompt_for_extract_features.txt /app/prompt_for_extract_features.txt
+COPY ./runners/backend.sh ./app/backend.sh
+
+RUN chmod +x ./app/backend.sh
 EXPOSE 8001
-CMD ["uvicorn", "backend:app", "--host", "0.0.0.0", "--port", "8001"]
