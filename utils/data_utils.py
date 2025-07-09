@@ -37,7 +37,6 @@ def extract_plot_features_api(prompt: str, template: str=template) -> Dict[str, 
     """
     logger.info("Отправка запроса в LLM")
     llm_url = f"http://{os.getenv('LLM_SERVICE')}:{os.getenv('LLM_PORT')}"
-    
     try:
         final_prompt = template.format(message=prompt, date=datetime.datetime.now())
         url = f"{llm_url}/api/generate"
@@ -51,14 +50,9 @@ def extract_plot_features_api(prompt: str, template: str=template) -> Dict[str, 
         response.raise_for_status()
         response_json = response.json()
         generated_text = response_json.get("response").strip()
-        if generated_text:
-            logger.info("Ответ получен")
-            logger.info(f"{generated_text}")
-            return json.loads(generated_text)
-        else:
-            logger.error(f"Ошибка: Не удалось получить словарь из ответа: {response_json}")
-            return None
-        
+        logger.info("Ответ получен")
+        logger.info(f"{generated_text}")
+        return json.loads(generated_text)
     except requests.exceptions.RequestException as e:
         logger.error(f"Ошибка при вызове Ollama API: {e}")
         return None

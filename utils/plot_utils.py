@@ -2,6 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+
 def line_plot(df: pd.DataFrame, x_axis: str, y_axis: str) -> plt.Figure:
     """
     Создает линейный график. Этот график отображает зависимость значений по оси Y от значений по оси X,
@@ -27,6 +28,7 @@ def line_plot(df: pd.DataFrame, x_axis: str, y_axis: str) -> plt.Figure:
     plt.grid(True)
     return plt.gcf()
 
+
 def bar_plot(df: pd.DataFrame, x_axis: str, y_axis: str) -> plt.Figure:
     """
     Создает и возвращает столбчатую диаграмму. Этот график используется для сравнения 
@@ -51,6 +53,7 @@ def bar_plot(df: pd.DataFrame, x_axis: str, y_axis: str) -> plt.Figure:
     plt.title(f"Соотношение {y_axis} по {x_axis}")
     plt.grid(True)
     return plt.gcf()
+
 
 def hist_plot(df: pd.DataFrame, x_axis: str, y_axis: str = None) -> plt.Figure:
     """
@@ -88,6 +91,7 @@ def hist_plot(df: pd.DataFrame, x_axis: str, y_axis: str = None) -> plt.Figure:
         plt.legend()
     plt.grid(True)
     return plt.gcf()
+
 
 def box_plot(df: pd.DataFrame, x_axis: str, y_axis: str) -> plt.Figure:
     """

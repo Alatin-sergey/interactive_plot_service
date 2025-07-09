@@ -23,7 +23,7 @@ create_airflow_connection: up
 	echo "Start of creating connecting Airflow with PosgreSQL"
 	docker-compose exec $(AIRFLOW_SERVICE) airflow connections add $(AIRFLOW_CONN_ID) \
 	  --conn-type postgres \
-	  --conn-host $(POSTGRES_HOST) \
+	  --conn-host $(POSTGRES_SERVICE) \
 	  --conn-port $(POSTGRES_PORT) \
 	  --conn-login $(POSTGRES_USER) \
 	  --conn-password $(POSTGRES_PASSWORD) \
