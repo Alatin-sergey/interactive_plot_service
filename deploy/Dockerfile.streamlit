@@ -1,8 +1,8 @@
 FROM python:3.9-slim-buster
 WORKDIR ./app
 RUN pip install --upgrade pip
-COPY ./requirements.txt ./app/requirements.txt
-RUN pip install --no-cache-dir --upgrade -r ./app/requirements.txt
+COPY ./req_front.txt ./app/req_front.txt
+RUN pip install --no-cache-dir --upgrade -r ./app/req_front.txt
 COPY ./app.py ./app/app.py
 COPY ./runners/frontend.sh ./app/frontend.sh
 RUN chmod +x ./app/frontend.sh

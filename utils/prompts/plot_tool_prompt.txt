@@ -1,0 +1,69 @@
+This tool is designed for creating plots based on data in CSV format.
+
+Input: A JSON string describing the plot to be created. The JSON string must contain the following keys:
+
+csv_file_path (str): The path to the CSV file containing the data. Example: /tmp/tmpv1vqreba.csv
+plot_type (str): The type of plot to create. Must be one of: “line”, “bar”, “scatter”, “hist”, “boxplot”, “pie”.
+x_axis (str): The name of the column in the CSV data to use for the X-axis.
+y_axis (str, optional): The name of the column in the CSV data to use for the Y-axis. Not required for all plot types (e.g., “hist”).
+
+Output: A string representing the path to the created image file (e.g., /tmp/grafik.png). You must return only the path without any extra words.
+
+Plot type descriptions:
+
+line: Line chart. Displays the relationship between the values on the Y-axis and the values on the X-axis, representing the time dynamics or trend of the data. x_axis: Typically, time series. y_axis: The values that are displayed depending on the X-axis.
+
+Example:
+{{
+  "csv_file_path": "/tmp/sales_data.csv",
+  "plot_type": "line",
+  "x_axis": "timestamp",
+  "y_axis": "purchase_amount"
+}}
+
+bar: Bar chart. Used to compare values between categories. x_axis: Categories for comparison. y_axis: The quantitative value corresponding to each category on the X-axis.
+
+Example:
+{{
+  "csv_file_path": "/tmp/sales_data.csv",
+  "plot_type": "bar",
+  "x_axis": "category",
+  "y_axis": "purchase_amount"
+}}
+
+hist: Histogram. Displays the distribution of data. x_axis: The column for which the distribution is being built. y_axis: Not required for a simple histogram. For creating a stacked histogram to show the distribution by categories, use both arguments: x_axis for numerical values, y_axis for categories. Grouping by category is not needed.
+
+Example (simple histogram):
+{{
+  "csv_file_path": "/tmp/sales_data.csv",
+  "plot_type": "hist",
+  "x_axis": "purchase_amount"
+}}
+
+Example (stacked histogram):
+{{
+  "csv_file_path": "/tmp/sales_data.csv",
+  "plot_type": "hist",
+  "x_axis": "purchase_amount",
+  "y_axis": "category"
+}}
+
+boxplot: Box plot. Shows the distribution of data, highlighting the median, quartiles, and outliers. x_axis: The category by which the data is grouped. y_axis: The numerical values to display.
+
+Example:
+{{
+  "csv_file_path": "/tmp/sales_data.csv",
+  "plot_type": "boxplot",
+  "x_axis": "category",
+  "y_axis": "purchase_amount"
+}}
+
+pie: Pie chart. Shows the proportions (percentages) of different categories in the total volume. x_axis: Category names (e.g., product names). y_axis: Numerical values representing the sizes of the shares (e.g., sales amounts).
+
+Example:
+{{
+  "csv_file_path": "/tmp/sales_data.csv",
+  "plot_type": "pie",
+  "x_axis": "category",
+  "y_axis": "purchase_amount"
+}}

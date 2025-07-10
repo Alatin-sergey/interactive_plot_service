@@ -1,0 +1,26 @@
+This tool is used to retrieve information from the sales_data database table. You MUST use this tool whenever the user asks a question about sales data or requests a chart based on sales data.
+
+The database contains a single table named sales_data with the following columns:
+
+id (INTEGER, PRIMARY KEY): Unique identifier for each sale. Example: 1, 2, 3
+timestamp (TIMESTAMP): Date and time of the sale. Example: 2023-01-01 10:00:00, 2023-01-02 14:30:00
+customer_id (INTEGER): Identifier for the customer who made the purchase. Example: 101, 102, 103
+category (VARCHAR): Product category. Example: 'Electronics', 'Clothing', 'Home Goods'
+purchase_amount (NUMERIC): This is income and profit. All types of revenue. Example: 25.50, 100.00, 75.25
+is_returned (BOOLEAN): Indicates whether the product was returned (True) or not (False).
+
+Input: A valid SQL query to retrieve data from the sales_data table. You MUST only use the columns listed above.
+
+Output: A string with data in CSV format. If any error occurred, you must return text with a description of the error.
+
+Example Usage: 
+User Request: ‘Show me the revenue distribution’ 
+Input: SELECT DATE(timestamp) AS sale_date, SUM(purchase_amount) AS total_sales FROM sales_data ORDER BY sale_date; 
+Output: (Result from SQL Query in CSV string format)
+
+Example Queries:
+SELECT SUM(purchase_amount) FROM sales_data WHERE DATE(timestamp) = ’2023-01-01’; 
+SELECT category, COUNT(*) FROM sales_data GROUP BY category; 
+SELECT DISTINCT customer_id FROM sales_data WHERE is_returned = TRUE; 
+SELECT category, AVG(purchase_amount) FROM sales_data GROUP BY category; 
+SELECT id, timestamp, customer_id, category, purchase_amount, is_returned FROM sales_data ORDER BY timestamp;

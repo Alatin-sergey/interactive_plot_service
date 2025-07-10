@@ -20,7 +20,7 @@ def line_plot(df: pd.DataFrame, x_axis: str, y_axis: str) -> plt.Figure:
     returns:
         plt.Figure: Объект Figure Matplotlib, представляющий созданный линейный график.
     """
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(10, 8))
     sns.lineplot(x=x_axis, y=y_axis, data=df)
     plt.xlabel(x_axis)
     plt.ylabel(y_axis)
@@ -46,7 +46,7 @@ def bar_plot(df: pd.DataFrame, x_axis: str, y_axis: str) -> plt.Figure:
     Returns:
         plt.Figure: Объект Figure Matplotlib, представляющий созданную столбчатую диаграмму.
     """
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(10, 8))
     sns.barplot(x=x_axis, y=y_axis, data=df)
     plt.xlabel(x_axis)
     plt.ylabel(y_axis)
@@ -77,15 +77,15 @@ def hist_plot(df: pd.DataFrame, x_axis: str, y_axis: str = None) -> plt.Figure:
     Returns:
         plt.Figure: Объект Figure Matplotlib, представляющий созданную гистограмму.
     """
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(10, 8))
     if y_axis is None:
         sns.histplot(x=x_axis, data=df, bins=30)
         plt.title(f"Распределение {x_axis}")
     else:
-        for category in df[x_axis].unique():
-            subset = df[df[x_axis] == category]
-            sns.histplot(x=y_axis, data=subset, kde=True, label=category, bins=30)
-            plt.title(f"Распределение {y_axis} по {x_axis}")
+        for category in df[y_axis].unique():
+            subset = df[df[y_axis] == category]
+            sns.histplot(x=x_axis, data=subset, kde=True, label=category, bins=30)
+            plt.title(f"Распределение {x_axis} по {y_axis}")
         plt.xlabel(f"{y_axis}")
         plt.ylabel("Frequency")
         plt.legend()
@@ -110,11 +110,32 @@ def box_plot(df: pd.DataFrame, x_axis: str, y_axis: str) -> plt.Figure:
     Returns:
         plt.Figure: Объект Figure Matplotlib, представляющий созданный ящик с усами.
     """
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(10, 8))
     sns.boxplot(x=x_axis, y=y_axis, data=df)
     plt.xlabel(x_axis)
     plt.ylabel(y_axis)
     plt.title(f"Распределение {y_axis} по {x_axis}")
     plt.grid(True)
     plt.suptitle("")
+    return plt.gcf()
+
+
+def pie_plot(df: pd.DataFrame, x_axis: str, y_axis: str) -> plt.Figure:
+    """
+    Создает круговую диаграмму. Отображает доли (проценты) различных категорий в общем объеме.
+    Args:
+        df: DataFrame, содержащий данные для построения графика.
+            Должен содержать столбцы, указанные в x_axis и y_axis.
+        x_axis: Название столбца из DataFrame, который будет использоваться
+                для меток долей (например, названия товаров).
+        y_axis: Название столбца из DataFrame, который будет использоваться
+                для значений долей (например, суммы продаж).
+    Returns:
+        plt.Figure: Объект Figure Matplotlib, представляющий созданную круговую диаграмму.
+    """
+    plt.figure(figsize=(8, 8))
+    plt.pie(df[y_axis], labels=df[x_axis], autopct='%1.1f%%', startangle=140, colors=sns.color_palette('pastel'))
+    plt.title(f"Доли {y_axis} по {x_axis}")
+    plt.axis('equal')
+    plt.tight_layout()
     return plt.gcf()

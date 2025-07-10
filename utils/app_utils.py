@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 url = f"http://{os.getenv('BACKEND_SERVICE')}:{os.getenv('BACKEND_PORT')}/get_plot/"
 
+
 def request_to_get_plot(query: str) -> str:
     """
     Функция выполняет запрос в backend, передавая пользовательский запрос на построение графика
@@ -18,7 +19,7 @@ def request_to_get_plot(query: str) -> str:
     response = requests.post(
             url=url,
             json={"text": query},
-            headers={"Content-Type": "application/json"}
+            headers={"Content-Type": "application/json"},
     )
     result = response.json()
     response.close()
