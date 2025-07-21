@@ -1,0 +1,13 @@
+pandas==2.3.0
+psycopg2-binary==2.9.10
+matplotlib==3.9.4
+dotenv==0.9.9
+uvicorn==0.34.3
+fastapi==0.115.13
+pydantic==2.11.7
+seaborn==0.13.2
+loguru==0.7.3
+SQLAlchemy==2.0.41
+langchain==0.3.26
+langchain_community==0.3.27
+langchain_ollama==0.3.4
